@@ -28,14 +28,19 @@ internal class Loader: LoaderProtocol {
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.httpMethod = "GET"
         session.dataTask(with: request) { data, urlResponse, error in
-            guard let data = data else { return }
-            
-            do {
-                let results = try JSONDecoder().decode([Organization].self, from: data)
-                response(.success(results))
-            } catch {
+            if let data = data {
+                
+                do {
+                    let results = try JSONDecoder().decode([Organization].self, from: data)
+                    response(.success(results))
+                } catch {
+                    response(.failure(error))
+                }
+            } else
+            if let error = error {
                 response(.failure(error))
             }
+            
         }.resume()
     }
     
@@ -47,12 +52,15 @@ internal class Loader: LoaderProtocol {
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.httpMethod = "GET"
         session.dataTask(with: request) { data, urlResponse, error in
-            guard let data = data else { return }
-            
-            do {
-                let result = try JSONDecoder().decode(Organization.self, from: data)
-                response(.success([result]))
-            } catch {
+            if let data = data {
+                do {
+                    let result = try JSONDecoder().decode(Organization.self, from: data)
+                    response(.success([result]))
+                } catch {
+                    response(.failure(error))
+                }
+            } else
+            if let error = error {
                 response(.failure(error))
             }
         }.resume()
